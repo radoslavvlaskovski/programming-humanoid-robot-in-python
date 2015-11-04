@@ -40,9 +40,48 @@ class AngleInterpolationAgent(PIDAgent):
 
     def angle_interpolation(self, keyframes):
         target_joints = {}
-        # YOUR CODE HERE
+        (names,times,keys) = keyframes
 
+        for i in range(0,len(names)):
+            target_joints[names[i]] = self.interpolation(i)
+        
         return target_joints
+
+    def interpolation(self,joint):
+        
+        interpolations = list()
+        joint_angles = list()
+        joint_times = list()
+        point_angle1 = list()
+        point_angle2 = list()
+        joint_points = list()
+
+        (names,times,keys) = self.keyframes
+
+        for x in range(0,len(keys[joint])):
+            joint_angles.append(keys[joint][x][0])
+            joint_times.append(times[joint][x])
+            point_angle1.append(keys[joint][x][1])
+            point_angle2.append(keys[joint][x][2])
+        
+        joint_points = zip(joint_times,joint_angles)
+        
+        for x in range(0,len(joint_times)-1):            
+            interpolations.append(self.angle_interpolate(joint_points[x],point_angle1[x],point_angle2[x+1],joint_points[x+1]))
+        
+        if( joint == 0 ):
+            print interpolations
+        
+        return interpolations
+    
+    def angle_interpolate(self,point0,point1,point2,point3):
+        
+        b = 0.0
+        t = 0.5
+        
+        return b
+        
+        
 
 if __name__ == '__main__':
     agent = AngleInterpolationAgent()
