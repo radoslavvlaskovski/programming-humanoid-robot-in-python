@@ -53,6 +53,16 @@ class PIDController(object):
         @return control signal
         '''
         # YOUR CODE HERE
+        part3 = (self.Kd * self.e2) / self.dt
+        part2 = (self.Kp * self.e1) + (2 * self.Kd * self.e1) / self.dt
+        self.e2 = self.e1
+        
+        for i in range(0,len(sensor)-1):
+            self.e1[i] = target[i] - sensor[i]
+
+        part1 = (self.Kp + (self.Ki * self.dt) + self.Kd / self.dt) * self.e1
+
+        self.u = self.u + part1 - part2 + part3
 
         return self.u
 
