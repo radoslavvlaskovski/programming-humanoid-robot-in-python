@@ -22,6 +22,8 @@
 
 from pid import PIDAgent
 from keyframes import hello
+from numpy import arange
+from keyframes import leftBellyToStand
 
 
 class AngleInterpolationAgent(PIDAgent):
@@ -32,58 +34,57 @@ class AngleInterpolationAgent(PIDAgent):
                  sync_mode=True):
         super(AngleInterpolationAgent, self).__init__(simspark_ip, simspark_port, teamname, player_id, sync_mode)
         self.keyframes = ([], [], [])
+        self.creation_time = self.perception.time
+        self.joint_interpolations = {}
 
     def think(self, perception):
         target_joints = self.angle_interpolation(self.keyframes)
         self.target_joints.update(target_joints)
-        return super(PIDAgent, self).think(perception)
+        return super(AngleInterpolationAgent, self).think(perception)
 
     def angle_interpolation(self, keyframes):
         target_joints = {}
         (names,times,keys) = keyframes
-
+        
+        current_time = round(self.perception.time - self.creation_time,2)
+        
         for i in range(0,len(names)):
-            target_joints[names[i]] = self.interpolation(i)
+            for j in range(0,len(times[i]) - 1):
+                if( current_time == times[i][j]):
+                    point1 = [times[i][j],keys[i][j][0]]
+                    point2 = [keys[i][j][1][2],keys[i][j][1][1]]
+                    point3 = [keys[i][j+1][1][2],keys[i][j+1][1][1]]
+                    point4 = [times[i][j+1],keys[i][j+1][0]]
+                    interpolations = self.angle_interpolate(point1,point2,point3,point4)
+                    self.joint_interpolations[names[i]] = interpolations
+                    target_joints[names[i]] = keys[i][j][0]
         
+        for key, value in self.joint_interpolations.iteritems():
+            for i in range(0,len(value)):
+                if( value[i][0] == current_time ):
+                    target_joints[key] = value[i][1]
+            
+                
         return target_joints
-
-    def interpolation(self,joint):
-        
-        interpolations = list()
-        joint_angles = list()
-        joint_times = list()
-        point_angle1 = list()
-        point_angle2 = list()
-        joint_points = list()
-
-        (names,times,keys) = self.keyframes
-
-        for x in range(0,len(keys[joint])):
-            joint_angles.append(keys[joint][x][0])
-            joint_times.append(times[joint][x])
-            point_angle1.append(keys[joint][x][1])
-            point_angle2.append(keys[joint][x][2])
-        
-        joint_points = zip(joint_times,joint_angles)
-        
-        for x in range(0,len(joint_times)-1):            
-            interpolations.append(self.angle_interpolate(joint_points[x],point_angle1[x],point_angle2[x+1],joint_points[x+1]))
-        
-        if( joint == 0 ):
-            print interpolations
-        
-        return interpolations
     
     def angle_interpolate(self,point0,point1,point2,point3):
         
-        b = 0.0
-        t = 0.5
-        
-        return b
-        
+        interpolations = list()
+
+        for t in arange(0,1.1,0.1):
+            u = 1-t
+            tt = t*t
+            ttt = tt * t
+            uu = u*u
+            uuu = uu*u
+            x = (uuu*point0[0]) + (3 * uu * t * point1[0]) + (3 * u * tt * point2[0]) + (ttt * point3[0])
+            y = (uuu*point0[1]) + (3 * uu * t * point1[1]) + (3 * u * tt * point2[1]) + (ttt * point3[1])
+            interpolations.append([x,y])
+
+        return interpolations
         
 
 if __name__ == '__main__':
     agent = AngleInterpolationAgent()
-    agent.keyframes = hello()  # CHANGE DIFFERENT KEYFRAMES
+    agent.keyframes = hello()# CHANGE DIFFERENT KEYFRAMES
     agent.run()
