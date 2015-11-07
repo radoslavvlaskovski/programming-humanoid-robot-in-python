@@ -35,7 +35,9 @@ class AngleInterpolationAgent(PIDAgent):
         super(AngleInterpolationAgent, self).__init__(simspark_ip, simspark_port, teamname, player_id, sync_mode)
         self.keyframes = ([], [], [])
         self.creation_time = self.perception.time
-        self.joint_interpolations = {}
+        self.joint_interpolationT = {k: list() for k in self.joint_names}
+        self.joint_interpolationA = {k: list() for k in self.joint_names}
+        self.count = 0
 
     def think(self, perception):
         target_joints = self.angle_interpolation(self.keyframes)
@@ -49,39 +51,44 @@ class AngleInterpolationAgent(PIDAgent):
         current_time = round(self.perception.time - self.creation_time,2)
         
         for i in range(0,len(names)):
-            for j in range(0,len(times[i]) - 1):
+            for j in range(0,len(times[i])-1):
                 if( current_time == times[i][j]):
                     point1 = [times[i][j],keys[i][j][0]]
                     point2 = [keys[i][j][1][2],keys[i][j][1][1]]
                     point3 = [keys[i][j+1][1][2],keys[i][j+1][1][1]]
                     point4 = [times[i][j+1],keys[i][j+1][0]]
-                    interpolations = self.angle_interpolate(point1,point2,point3,point4)
-                    self.joint_interpolations[names[i]] = interpolations
+                    (timesint,anglesint) = self.angle_interpolate(point1,point2,point3,point4)
+                    self.joint_interpolationT[names[i]] = timesint
+                    self.joint_interpolationA[names[i]] = anglesint
                     target_joints[names[i]] = keys[i][j][0]
-        
-        for key, value in self.joint_interpolations.iteritems():
-            for i in range(0,len(value)):
-                if( value[i][0] == current_time ):
-                    target_joints[key] = value[i][1]
+                         
             
-                
+        for key, value in self.joint_interpolationT.iteritems():
+            for i,t in enumerate(value):
+                if( t == current_time ):
+                    target_joints[key] = self.joint_interpolationA[key][i]
+                    if( key == "HeadYaw"):
+                        self.count += 1
+        print self.count
         return target_joints
     
     def angle_interpolate(self,point0,point1,point2,point3):
         
-        interpolations = list()
+        times = list()
+        angles = list()
 
-        for t in arange(0,1.1,0.1):
+        for t in arange(0,1.1,0.001):
             u = 1-t
             tt = t*t
             ttt = tt * t
             uu = u*u
             uuu = uu*u
-            x = (uuu*point0[0]) + (3 * uu * t * point1[0]) + (3 * u * tt * point2[0]) + (ttt * point3[0])
-            y = (uuu*point0[1]) + (3 * uu * t * point1[1]) + (3 * u * tt * point2[1]) + (ttt * point3[1])
-            interpolations.append([x,y])
+            x = round((uuu*point0[0]) + (3 * uu * t * point1[0]) + (3 * u * tt * point2[0]) + (ttt * point3[0]),2)
+            y = round((uuu*point0[1]) + (3 * uu * t * point1[1]) + (3 * u * tt * point2[1]) + (ttt * point3[1]),2)
+            times.append(x)
+            angles.append(y)
 
-        return interpolations
+        return times,angles
         
 
 if __name__ == '__main__':
