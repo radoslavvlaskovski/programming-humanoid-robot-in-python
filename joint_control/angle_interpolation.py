@@ -45,7 +45,7 @@ class AngleInterpolationAgent(PIDAgent):
 
     def think(self, perception):
         # if the keyframes and interpolations are loaded
-        if(self.keyframes_loaded == False and len(self.keyframes) > 0):
+        if(self.interpolations_loaded == False and len(self.keyframes) > 0):
             self.joint_interpolationT,self.joint_interpolationA = self.load_interpolations(self.keyframes)
             self.interpolations_loaded = True
         # assign the target joints returned by angle_interpolation
@@ -72,8 +72,6 @@ class AngleInterpolationAgent(PIDAgent):
             for j,t in enumerate(val):
                 if( t == current_time ):
                     target_joints[names[i]] = self.joint_interpolationA[names[i]][j]
-                    if( names[i] == 'LHand'):
-                        self.count += 1
                              
         return target_joints
     
