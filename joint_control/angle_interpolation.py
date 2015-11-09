@@ -89,8 +89,8 @@ class AngleInterpolationAgent(PIDAgent):
         for i in range(0,len(names)):
             for j in range(0,len(times[i])-1):
                 point1 = [times[i][j],keys[i][j][0]]
-                point2 = [keys[i][j][1][2],keys[i][j][1][1]]
-                point3 = [keys[i][j+1][1][2],keys[i][j+1][1][1]]
+                point2 = [times[i][j] + keys[i][j][1][2],keys[i][j][0] + keys[i][j][1][1]]
+                point3 = [keys[i][j+1][1][2] + times[i][j+1],keys[i][j+1][1][1] + keys[i][j+1][0]]
                 point4 = [times[i][j+1],keys[i][j+1][0]]
                 (timesint,anglesint) = self.angle_interpolate(point1,point2,point3,point4)
                 end_times[names[i]].extend(timesint)
