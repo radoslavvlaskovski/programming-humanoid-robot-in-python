@@ -15,8 +15,9 @@ class StandingUpAgent(PostureRecognitionAgent):
         return super(StandingUpAgent, self).think(perception)
 
     def standing_up(self):
+        # Robot doesnt recognize when it fells
         posture = self.posture
-        if( posture == 'Right' ):
+        if( posture == 'Belly' ):
             print posture
 
 
