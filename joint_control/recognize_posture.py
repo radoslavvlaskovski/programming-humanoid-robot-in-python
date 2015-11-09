@@ -44,5 +44,5 @@ class PostureRecognitionAgent(AngleInterpolationAgent):
 
 if __name__ == '__main__':
     agent = PostureRecognitionAgent()
-    agent.keyframes = keyframes.leftBackToStand()
+    agent.keyframes = keyframes.wipe_forehead()
     agent.run()
