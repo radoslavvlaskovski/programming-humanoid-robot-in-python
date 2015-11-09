@@ -59,11 +59,9 @@ class AngleInterpolationAgent(PIDAgent):
             for j,t in enumerate(val):
                 if( t == current_time ):
                     target_joints[names[i]] = self.joint_interpolationA[names[i]][j]
-                    if( names[i] == 'HeadYaw'):
+                    if( names[i] == 'LHand'):
                         self.count += 1
-                         
-            
-        print self.count
+                             
         return target_joints
     
     def load_interpolations(self,keyframes):
@@ -87,7 +85,7 @@ class AngleInterpolationAgent(PIDAgent):
         times = list()
         angles = list()
 
-        for t in arange(0,1.0,0.001):
+        for t in arange(0,1.0,0.01):
             u = 1-t
             tt = t*t
             ttt = tt * t
