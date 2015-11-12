@@ -45,7 +45,6 @@ class PostureRecognitionAgent(AngleInterpolationAgent):
         for j in joints:
             data.append(perception.joint[j])
         # get the predicted Posture from the classifier and return it
-        # Doesnt work properly
         posture = self.classes[self.posture_classifier.predict(data)]
         print posture
         return posture

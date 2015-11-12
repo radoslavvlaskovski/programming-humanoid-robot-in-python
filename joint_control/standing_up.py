@@ -7,6 +7,8 @@
 
 
 from recognize_posture import PostureRecognitionAgent
+import keyframes
+
 
 
 class StandingUpAgent(PostureRecognitionAgent):
@@ -15,10 +17,10 @@ class StandingUpAgent(PostureRecognitionAgent):
         return super(StandingUpAgent, self).think(perception)
 
     def standing_up(self):
-        # Robot doesnt recognize when it fells
+        # Robot doesnt recognize when it falls
         posture = self.posture
-        if( posture != 'Belly' ):
-            print posture
+        if( posture == 'Belly'):
+            self.keyframes = keyframes.hello()
 
 
 class TestStandingUpAgent(StandingUpAgent):
