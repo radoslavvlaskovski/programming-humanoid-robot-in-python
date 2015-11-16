@@ -21,6 +21,8 @@ import sys
 sys.path.append(os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'joint_control'))
 
 from numpy.matlib import matrix, identity
+from numpy import sin,cos
+from keyframes import hello
 
 from angle_interpolation import AngleInterpolationAgent
 
@@ -35,10 +37,13 @@ class ForwardKinematicsAgent(AngleInterpolationAgent):
         self.transforms = {n: identity(4) for n in self.joint_names}
 
         # chains defines the name of chain and joints of the chain
-        self.chains = {'Head': ['HeadYaw', 'HeadPitch']
-                       # YOUR CODE HERE
+        self.chains = {'Head': ['HeadYaw', 'HeadPitch'],
+                       'LArm' : ['LShoulderPitch','LShoulderRoll','LElbowYaw','LElbowRoll'],
+                       'LLeg' : ['LHipYawPitch','LHipRoll','LHipPitch','LKneePitch','LAnklePitch','LAnkleRoll'],
+                       'RLeg' : ['RHipYawPitch','RHipRoll','RHipPitch','RKneePitch','RAnklePitch','RAnkleRoll'],
+                       'RArm' : ['RShoulderPitch','RShoulderRoll','RElbowYaw','RElbowRoll']
                        }
-
+ 
     def think(self, perception):
         self.forward_kinematics(perception.joint)
         return super(ForwardKinematicsAgent, self).think(perception)
@@ -51,8 +56,62 @@ class ForwardKinematicsAgent(AngleInterpolationAgent):
         :return: transformation
         :rtype: 4x4 matrix
         '''
-        T = matrix()
-        # YOUR CODE HERE
+        s = sin(joint_angle)
+        c = cos(joint_angle)
+        T = matrix(4)
+        if 'Pitch' in joint_name :
+            T = T + ([[c,0,s,0],
+                  [0,1,0,0],
+                  [-s,0,c,0],
+                  [0,0,0,1]])
+            if "Shoulder" in joint_name :
+                T = T + ([[0,0,0,0],
+                          [0,0,0,98],
+                          [0,0,0,100],
+                          [0,0,0,0]])
+            if "Knee" in joint_name :
+                T = T + ([[0,0,0,0],
+                          [0,0,0,0],
+                          [0,0,0,-102.9],
+                          [0,0,0,0]])
+            if "Ankle" in joint_name :
+                T = T + ([[0,0,0,0],
+                          [0,0,0,50],
+                          [0,0,0,-85],
+                          [0,0,0,0]])
+        elif 'Yaw' in joint_name :
+            T = T + ([[c,s,0,0],
+                  [-s,c,0,0],
+                  [0,0,0,0],
+                  [0,0,0,1]])
+            if 'Head' in joint_name :
+                T = T + ([[0,0,0,0],
+                          [0,0,0,0],
+                          [0,0,0,126.5],
+                          [0,0,0,0]])
+            if "Elbow" in joint_name :
+                T = T + ([[0,0,0,105],
+                          [0,0,0,15],
+                          [0,0,0,0],
+                          [0,0,0,0]])
+            if "Wrist" in joint_name :
+                T = T + ([[0,0,0,55.95],
+                          [0,0,0,0],
+                          [0,0,0,0],
+                          [0,0,0,0]])
+            if "Hip" in joint_name :
+                T = T + ([[0,0,0,0],
+                          [0,0,0,50],
+                          [0,0,0,-85],
+                          [0,0,0,0]])
+        elif 'Roll' in joint_name :
+            T = T + ([[1,0,0,0],
+                  [0,c,-s,0],
+                  [0,s,c,0],
+                  [0,0,0,1]])            
+          
+            
+        
 
         return T
 
@@ -65,10 +124,11 @@ class ForwardKinematicsAgent(AngleInterpolationAgent):
             T = identity(4)
             for joint in chain_joints:
                 angle = joints[joint]
-                Tl = local_trans(joint, angle)
+                Tl = self.local_trans(joint, angle)
                 # YOUR CODE HERE
+                T = T * Tl
 
-                self.transforms[joint] = T
+            self.transforms[joint] = T
 
 if __name__ == '__main__':
     agent = ForwardKinematicsAgent()

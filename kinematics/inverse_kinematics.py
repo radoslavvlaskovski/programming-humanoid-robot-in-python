@@ -12,6 +12,7 @@
 
 from forward_kinematics import ForwardKinematicsAgent
 from numpy.matlib import identity
+from sympy import sin
 
 
 class InverseKinematicsAgent(ForwardKinematicsAgent):
@@ -23,6 +24,10 @@ class InverseKinematicsAgent(ForwardKinematicsAgent):
         :return: list of joint angles
         '''
         joint_angles = []
+
+        joints = self.chains[effector_name]
+        print joints
+        print transform
         # YOUR CODE HERE
         return joint_angles
 
@@ -30,6 +35,7 @@ class InverseKinematicsAgent(ForwardKinematicsAgent):
         '''solve the inverse kinematics and control joints use the results
         '''
         # YOUR CODE HERE
+        joint_angles = self.inverse_kinematics(effector_name,transform)
         self.keyframes = ([], [], [])  # the result joint angles have to fill in
 
 if __name__ == '__main__':
