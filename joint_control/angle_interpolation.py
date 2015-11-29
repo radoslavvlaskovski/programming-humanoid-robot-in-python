@@ -106,7 +106,7 @@ class AngleInterpolationAgent(PIDAgent):
         times = list()
         angles = list()
 
-        for t in arange(0,1.0,0.01):
+        for t in arange(0,1.0,0.1):
             u = 1-t
             tt = t*t
             ttt = tt * t

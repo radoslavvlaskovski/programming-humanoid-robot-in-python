@@ -20,7 +20,7 @@ class StandingUpAgent(PostureRecognitionAgent):
         # Robot doesnt recognize when it falls
         posture = self.posture
         if( posture == 'Belly'):
-            self.keyframes = keyframes.hello()
+            self.keyframes = keyframes.leftBellyToStand()
 
 
 class TestStandingUpAgent(StandingUpAgent):
