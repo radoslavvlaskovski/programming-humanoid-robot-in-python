@@ -13,9 +13,11 @@
 from forward_kinematics import ForwardKinematicsAgent
 from numpy.matlib import identity
 from sympy import sin
+from math import atan2
 
 
 class InverseKinematicsAgent(ForwardKinematicsAgent):
+
     def inverse_kinematics(self, effector_name, transform):
         '''solve the inverse kinematics
 
@@ -30,6 +32,25 @@ class InverseKinematicsAgent(ForwardKinematicsAgent):
         print transform
         # YOUR CODE HERE
         return joint_angles
+
+    def from_transform(transform):
+        # return x,y,z
+        x = transform[0][3]
+        y = transform[1][3]
+        z = transform[2][3]
+        if( transform[0][0] == 1 && transform[1][1] == 1 && transform[2][2] ):
+            theta = 0;
+            return [x,y,z,0,0,0]
+        else:
+            if( transform[0][0] == 1):
+                theta = atan2(transform[2][1],transform[1][1])
+                return [x,y,z,theta,0,0]
+            if( transform[1][1] == 1):
+                theta = atan2(transform[0][2],transform[0][0])
+                return [x,y,z,0,theta]
+            if( transform[1][1] == 1):
+                theta = atan2(trasnform[1][0],transform[0][0])
+                return [x,y,z,0,0,theta]
 
     def set_transforms(self, effector_name, transform):
         '''solve the inverse kinematics and control joints use the results
